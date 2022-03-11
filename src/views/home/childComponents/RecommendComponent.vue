@@ -27,7 +27,7 @@ export default {
 
 .recommend{
   display:flex;
-  font-size: 12px;
+  font-size: 15px;
   text-align: center;
 }
 .recommend-item{
@@ -37,6 +37,7 @@ export default {
 }
 .recommend-item a{
   text-decoration: none;
+  color: grey;
 }
 .recommend-item img{
   width: 70px;

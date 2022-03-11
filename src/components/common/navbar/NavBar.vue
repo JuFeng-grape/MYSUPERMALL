@@ -16,7 +16,7 @@
   .navBar{
     display: flex;
     line-height: 44px;
-    background-color: lightpink;
+
   }
   .left,.right{
     width: 60px;

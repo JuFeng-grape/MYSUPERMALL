@@ -1,112 +1,32 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物车</div></nav-bar>
-    <HomeSwiper :banner="banner"></HomeSwiper>
-    <recommend-component :recommend="recommend"></recommend-component>
-    <feature-view></feature-view>
-    <tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick="tabClick"></tab-control>
-    <goods-list :goods="showInfo" ></goods-list>
-    <ul>
-      <li>列表01</li>
-      <li>列表02</li>
-      <li>列表03</li>
-      <li>列表04</li>
-      <li>列表05</li>
-      <li>列表06</li>
-      <li>列表07</li>
-      <li>列表08</li>
-      <li>列表09</li>
-      <li>列表10</li>
-      <li>列表11</li>
-      <li>列表12</li>
-      <li>列表13</li>
-      <li>列表14</li>
-      <li>列表15</li>
-      <li>列表16</li>
-      <li>列表17</li>
-      <li>列表18</li>
-      <li>列表19</li>
-      <li>列表20</li>
-      <li>列表21</li>
-      <li>列表22</li>
-      <li>列表23</li>
-      <li>列表24</li>
-      <li>列表25</li>
-      <li>列表26</li>
-      <li>列表27</li>
-      <li>列表28</li>
-      <li>列表29</li>
-      <li>列表30</li>
-      <li>列表31</li>
-      <li>列表32</li>
-      <li>列表33</li>
-      <li>列表34</li>
-      <li>列表35</li>
-      <li>列表36</li>
-      <li>列表37</li>
-      <li>列表38</li>
-      <li>列表39</li>
-      <li>列表40</li>
-      <li>列表41</li>
-      <li>列表42</li>
-      <li>列表43</li>
-      <li>列表44</li>
-      <li>列表45</li>
-      <li>列表46</li>
-      <li>列表47</li>
-      <li>列表48</li>
-      <li>列表49</li>
-      <li>列表50</li>
-      <li>列表51</li>
-      <li>列表52</li>
-      <li>列表53</li>
-      <li>列表54</li>
-      <li>列表55</li>
-      <li>列表56</li>
-      <li>列表57</li>
-      <li>列表58</li>
-      <li>列表59</li>
-      <li>列表60</li>
-      <li>列表61</li>
-      <li>列表62</li>
-      <li>列表63</li>
-      <li>列表64</li>
-      <li>列表65</li>
-      <li>列表66</li>
-      <li>列表67</li>
-      <li>列表68</li>
-      <li>列表69</li>
-      <li>列表70</li>
-      <li>列表71</li>
-      <li>列表72</li>
-      <li>列表73</li>
-      <li>列表74</li>
-      <li>列表75</li>
-      <li>列表76</li>
-      <li>列表77</li>
-      <li>列表78</li>
-      <li>列表79</li>
-      <li>列表80</li>
-      <li>列表81</li>
-      <li>列表82</li>
-      <li>列表83</li>
-      <li>列表84</li>
-      <li>列表85</li>
-      <li>列表86</li>
-      <li>列表87</li>
-      <li>列表88</li>
-      <li>列表89</li>
-      <li>列表90</li>
-      <li>列表91</li>
-      <li>列表92</li>
-      <li>列表93</li>
-      <li>列表94</li>
-      <li>列表95</li>
-      <li>列表96</li>
-      <li>列表97</li>
-      <li>列表98</li>
-      <li>列表99</li>
-    </ul>
+    <tab-control :titles="['流行','新款','精选']"
+                 class="tab-control"
+                 @tabClick="tabClick"
+                 ref="tabControl1"
+                v-show="isTabFixed"
+    ></tab-control>
+    <scroll class="home-scroll"
+            ref="scroll"
+            :probe-type="3"
+            @scroll="contentScroll"
+            :pull-up-load="true"
+            @pullingUp="loadMore">
+      <HomeSwiper :banner="banner" @swiperImgLoad="swiperImgLoad"></HomeSwiper>
+      <recommend-component :recommend="recommend"></recommend-component>
+      <feature-view></feature-view>
+      <tab-control :titles="['流行','新款','精选']"
+
+                   @tabClick="tabClick"
+                    ref="tabControl2"
+      ></tab-control>
+      <goods-list :goods="showInfo" ></goods-list>
+
+    </scroll>
+    <back-top @click.native="backClick" v-show="isShowTop"></back-top>
+
+
   </div>
 </template>
 
@@ -114,20 +34,25 @@
 import NavBar from "@/components/common/navbar/NavBar";
 import TabControl from "@/components/content/tabControl/TabControl";
 import GoodsList from "@/components/content/goods/GoodsList";
-
+import BackTop from "@/components/content/backTop/BackTop"
+import Scroll from "@/components/common/scroll/Scroll";
 
 import HomeSwiper from "@/views/home/childComponents/HomeSwiper";
 import RecommendComponent from "@/views/home/childComponents/RecommendComponent";
 import FeatureView from "@/views/home/childComponents/FeatureView";
 
 import {getMultiData,getHomeGoods} from "@/network/home";
+
+import {itemListenerMixIn} from "@/common/mixin";
+
 export default {
   name: "Home",
   components:{
     NavBar,
     TabControl,
     GoodsList,
-
+    BackTop,
+    Scroll,
     HomeSwiper,
     RecommendComponent,
     FeatureView
@@ -141,14 +66,22 @@ export default {
         'new':{page:0,list:[]},
         'sell':{page:0,list:[]}
       },
-      currentType:'pop'
+      currentType:'pop',
+      isShowTop:false,
+      tabOffsetTop:0,
+      isTabFixed:false,
+      saveY:0,
     }
   },
+  mixins:[itemListenerMixIn],
   created() {
-   this.getMultiData(),
-   this.getHomeGoods('pop'),
-   this.getHomeGoods('new'),
-   this.getHomeGoods('sell')
+     this.getMultiData(),
+     this.getHomeGoods('pop'),
+     this.getHomeGoods('new'),
+     this.getHomeGoods('sell')
+  },
+  mounted() {
+
   },
   computed:{
     showInfo(){
@@ -156,6 +89,7 @@ export default {
     }
   },
   methods:{
+
     tabClick(index){
       console.log(index)
       switch(index){
@@ -169,6 +103,14 @@ export default {
           this.currentType='sell'
           break
       }
+      this.$refs.tabControl1.currentIndex = index
+      this.$refs.tabControl2.currentIndex = index
+
+    },
+    loadMore(){
+      console.log('加载更多 ');
+      this.getHomeGoods(this.currentType)
+      this.$refs.scroll.scroll.refresh()
     },
     getMultiData(){
       getMultiData().then(res=>{
@@ -179,11 +121,32 @@ export default {
     getHomeGoods(type){
       const page=this.goods[type].page + 1;
       getHomeGoods(type,page).then(res => {
-        console.log(res);
-        // this.goods[type].list.push(...res.data);//记得加上res.data.list
-        // this.goods[type].page  += 1;
+        // console.log(res);
+        this.goods[type].list.push(...res.data.list);
+        this.goods[type].page  += 1;
+        this.$refs.scroll.finishPullUp()
       })
+    },
+    backClick(){
+      this.$refs.scroll.scrollTo(0,0,1000);
+    },
+    contentScroll(position){
+      this.isShowTop = (-position.y) >1000
+      this.isTabFixed = (-position.y)  > this.tabOffsetTop
+    },
+    swiperImgLoad(){
+      // console.log(this.$refs.tabControl2.$el.offsetTop);
+      this.tabOffsetTop=this.$refs.tabControl2.$el.offsetTop
     }
+  },
+  activated() {
+    this.$refs.scroll.refresh()
+    this.$refs.scroll.scrollTo(0,this.saveY,0)
+  },
+  deactivated() {
+
+    this.saveY=this.$refs.scroll.getScrollY()
+  this.$bus.$off('imagesLoadEnd',  this.itemImgListener)
   }
 
 }
@@ -191,22 +154,29 @@ export default {
 
 <style scoped>
 #home{
-  padding-top: 44px;
+  /*padding-top: 44px;*/
+  height: 100vh;
+  position: relative;
 }
 .home-nav{
   color: white;
   text-align: center;
   box-shadow: 0px 1px 1px rgba(100,100,100,.1);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
+  background-color: lightPink;
 }
 .tab-control{
-  position: sticky;
-  top: 44px;
-  background-color: #fff;
+  position: relative;
   z-index: 9;
+  background-color: #fff;
 }
+.home-scroll{
+
+  overflow: hidden;
+  position: absolute;
+  top: 44px;
+  bottom: 49px;
+  right: 0;
+  left: 0;
+}
+
 </style>
