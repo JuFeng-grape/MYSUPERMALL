@@ -1,146 +1,161 @@
 <template>
-  <div>
-    <div class="wrapper">
-      <div class="content">
-        <ul>
-          <li>列表信息1</li>
-          <li>列表信息2</li>
-          <li>列表信息3</li>
-          <li>列表信息4</li>
-          <li>列表信息5</li>
-          <li>列表信息6</li>
-          <li>列表信息7</li>
-          <li>列表信息8</li>
-          <li>列表信息9</li>
-          <li>列表信息10</li>
-          <li>列表信息11</li>
-          <li>列表信息12</li>
-          <li>列表信息13</li>
-          <li>列表信息14</li>
-          <li>列表信息15</li>
-          <li>列表信息16</li>
-          <li>列表信息17</li>
-          <li>列表信息18</li>
-          <li>列表信息19</li>
-          <li>列表信息20</li>
-          <li>列表信息21</li>
-          <li>列表信息22</li>
-          <li>列表信息23</li>
-          <li>列表信息24</li>
-          <li>列表信息25</li>
-          <li>列表信息26</li>
-          <li>列表信息27</li>
-          <li>列表信息28</li>
-          <li>列表信息29</li>
-          <li>列表信息30</li>
-          <li>列表信息31</li>
-          <li>列表信息32</li>
-          <li>列表信息33</li>
-          <li>列表信息34</li>
-          <li>列表信息35</li>
-          <li>列表信息36</li>
-          <li>列表信息37</li>
-          <li>列表信息38</li>
-          <li>列表信息39</li>
-          <li>列表信息40</li>
-          <li>列表信息41</li>
-          <li>列表信息42</li>
-          <li>列表信息43</li>
-          <li>列表信息44</li>
-          <li>列表信息45</li>
-          <li>列表信息46</li>
-          <li>列表信息47</li>
-          <li>列表信息48</li>
-          <li>列表信息49</li>
-          <li>列表信息50</li>
-          <li>列表信息51</li>
-          <li>列表信息52</li>
-          <li>列表信息53</li>
-          <li>列表信息54</li>
-          <li>列表信息55</li>
-          <li>列表信息56</li>
-          <li>列表信息57</li>
-          <li>列表信息58</li>
-          <li>列表信息59</li>
-          <li>列表信息60</li>
-          <li>列表信息61</li>
-          <li>列表信息62</li>
-          <li>列表信息63</li>
-          <li>列表信息64</li>
-          <li>列表信息65</li>
-          <li>列表信息66</li>
-          <li>列表信息67</li>
-          <li>列表信息68</li>
-          <li>列表信息69</li>
-          <li>列表信息70</li>
-          <li>列表信息71</li>
-          <li>列表信息72</li>
-          <li>列表信息73</li>
-          <li>列表信息74</li>
-          <li>列表信息75</li>
-          <li>列表信息76</li>
-          <li>列表信息77</li>
-          <li>列表信息78</li>
-          <li>列表信息79</li>
-          <li>列表信息80</li>
-          <li>列表信息81</li>
-          <li>列表信息82</li>
-          <li>列表信息83</li>
-          <li>列表信息84</li>
-          <li>列表信息85</li>
-          <li>列表信息86</li>
-          <li>列表信息87</li>
-          <li>列表信息88</li>
-          <li>列表信息89</li>
-          <li>列表信息90</li>
-          <li>列表信息91</li>
-          <li>列表信息92</li>
-          <li>列表信息93</li>
-          <li>列表信息94</li>
-          <li>列表信息95</li>
-          <li>列表信息96</li>
-          <li>列表信息97</li>
-          <li>列表信息98</li>
-          <li>列表信息99</li>
-          <li>列表信息100</li>
-        </ul>
-      </div>
+  <div id="category">
+    <nav-bar class="nav-bar"><template #center>商品分类</template></nav-bar>
+    <div class="content">
+      <tab-menu :categories="categories" @selectItem="selectItem"
+                class="tab-menu"></tab-menu>
+
+        <scroll id="tab-content" :data="[categoryData]">
+          <div>
+            <tab-content-category :subcategories="showSubcategory"></tab-content-category>
+            <tab-control :titles="['综合', '新品', '销量']"
+                         @tabClick="tabClick"></tab-control>
+            <tab-content-detail :category-detail="showCategoryDetail"></tab-content-detail>
+          </div>
+        </scroll>
+
     </div>
   </div>
 </template>
 
 <script>
-import BScroll from 'better-scroll'
+import NavBar from "../../components/common/navbar/NavBar.vue";
+import Scroll from '@/components/common/scroll/Scroll'
+import TabControl from "../../components/content/tabControl/TabControl"
+import TabContentCategory from "@/views/class/childComponents/TabContentCategory"
+import TabContentDetail from "@/views/class/childComponents/TabContentDetail"
+import {
+  getCategory,
+  getSubcategory,
+  getCategoryDetail,
+} from "@/network/category";
+import TabMenu from "@/views/class/childComponents/TabMenu";
 export default {
   name: "Class",
-  components:{
-    BScroll
+  components: {
+    NavBar,
+    TabMenu,
+    Scroll,
+    TabControl,
+    TabContentCategory,
+    TabContentDetail,
   },
-  data(){
-    return{
-      scroll:null
+  data () {
+    return {
+      categories: [],
+      categoryData: [],
+      currentIndex: -1,
+      currentType: 'pop',
     }
   },
-  mounted() {
-    this.scroll=new BScroll(document.querySelector('.wrapper'),{
-      probeType:3,
-      pullUpLoad:true
-    })
-    this.scroll.on('scroll',(position)=>{
-      // console.log(position);
-    })
-    this.scroll.on('pullingUp',()=>{
-      console.log('----------上拉加载更多--------');
-      this.scroll.finishPullUp()
-    })
-  }
-}
+  created() {
+    // 1.请求分类数据
+    this._getCategory();
+  },
+  computed: {
+    showSubcategory() {
+      if (this.currentIndex === -1) return {};
+      return this.categoryData[this.currentIndex].subcategories;
+    },
+    showCategoryDetail() {
+      if (this.currentIndex === -1) return [];
+      return this.categoryData[this.currentIndex].categoryDetail[
+        this.currentType
+        ];
+    },
+  },
+  methods: {
+    _getCategory() {
+      getCategory().then((res) => {
+        // 1.获取分类数据
+        this.categories = res.data.category.list;
+        // console.log(this.categories);
+        // 2.初始化每个类别的子数据
+        for (let i = 0; i < this.categories.length; i++) {
+          this.categoryData[i] = {
+            subcategories: {},
+            categoryDetail: {
+              'pop': [],
+              'new': [],
+              'sell': []
+            },
+          };
+        }
+        // 3.请求第一个分类的数据
+        this._getSubcategories(0);
+      });
+    },
+    _getSubcategories(index) {
+      this.currentIndex = index;
+      const mailKey = this.categories[index].maitKey;
+      getSubcategory(mailKey).then((res) => {
+        this.categoryData[index].subcategories = res.data;
+        this.categoryData = { ...this.categoryData };
+        this._getCategoryDetail('pop');
+        this._getCategoryDetail('new');
+        this._getCategoryDetail('sell');
+        // console.log(this.categoryData);
+      });
+    },
+    _getCategoryDetail(type) {
+      // 1.获取请求的miniWallkey
+      const miniWallkey = this.categories[this.currentIndex].miniWallkey;
+      // 2.发送请求,传入miniWallkey和type
+      getCategoryDetail(miniWallkey, type).then((res) => {
+        // 3.将获取的数据保存下来
+        this.categoryData[this.currentIndex].categoryDetail[type] = res;
+        this.categoryData = { ...this.categoryData };
+      });
+    },
+    /**
+     * 事件响应相关的方法
+     */
+    tabClick(index) {
+      switch (index) {
+        case 0:
+          this.currentType = 'pop'
+          break
+        case 1:
+          this.currentType = 'new'
+          break
+        case 2:
+          this.currentType = 'sell'
+          break
+      }
+      // console.log(this.currentType);
+    },
+    selectItem(index) {
+      this._getSubcategories(index);
+    },
+  },
+};
 </script>
 
 <style scoped>
-  .wrapper{
-    height: 300px;
-    background-color: red;
-    overflow: hidden;
-  }
+.scroll-content{
+  height: 100vh;
+
+}
+#category {
+  height: 100vh;
+}
+.nav-bar {
+  background-color: pink;
+  font-size: 18px;
+  text-align: center;
+  color: #fff;
+}
+.content {
+ overflow: hidden;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 44px;
+  bottom: 49px;
+  display: flex;
+}
+#tab-content {
+  height: 100%;
+  flex: 1;
+}
 </style>

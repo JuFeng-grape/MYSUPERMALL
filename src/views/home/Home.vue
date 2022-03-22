@@ -1,6 +1,6 @@
 <template>
   <div id="home">
-    <nav-bar class="home-nav"><div slot="center">购物车</div></nav-bar>
+    <nav-bar class="home-nav"><div slot="center">首页</div></nav-bar>
     <tab-control :titles="['流行','新款','精选']"
                  class="tab-control"
                  @tabClick="tabClick"
@@ -25,37 +25,32 @@
 
     </scroll>
     <back-top @click.native="backClick" v-show="isShowTop"></back-top>
-
-
   </div>
 </template>
 
 <script>
+
+
 import NavBar from "@/components/common/navbar/NavBar";
 import TabControl from "@/components/content/tabControl/TabControl";
 import GoodsList from "@/components/content/goods/GoodsList";
-import BackTop from "@/components/content/backTop/BackTop"
 import Scroll from "@/components/common/scroll/Scroll";
-
 import HomeSwiper from "@/views/home/childComponents/HomeSwiper";
 import RecommendComponent from "@/views/home/childComponents/RecommendComponent";
 import FeatureView from "@/views/home/childComponents/FeatureView";
-
 import {getMultiData,getHomeGoods} from "@/network/home";
-
-import {itemListenerMixIn} from "@/common/mixin";
-
+import {itemListenerMixIn, backToTop} from "@/common/mixin";
 export default {
   name: "Home",
   components:{
     NavBar,
     TabControl,
     GoodsList,
-    BackTop,
     Scroll,
     HomeSwiper,
     RecommendComponent,
-    FeatureView
+    FeatureView,
+
   },
   data(){
     return{
@@ -67,13 +62,13 @@ export default {
         'sell':{page:0,list:[]}
       },
       currentType:'pop',
-      isShowTop:false,
       tabOffsetTop:0,
       isTabFixed:false,
       saveY:0,
+
     }
   },
-  mixins:[itemListenerMixIn],
+  mixins:[itemListenerMixIn,backToTop],
   created() {
      this.getMultiData(),
      this.getHomeGoods('pop'),
@@ -127,11 +122,10 @@ export default {
         this.$refs.scroll.finishPullUp()
       })
     },
-    backClick(){
-      this.$refs.scroll.scrollTo(0,0,1000);
-    },
+
     contentScroll(position){
-      this.isShowTop = (-position.y) >1000
+     this.backIconShow(position)
+
       this.isTabFixed = (-position.y)  > this.tabOffsetTop
     },
     swiperImgLoad(){
